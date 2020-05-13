@@ -23,7 +23,6 @@ public class smbcli {
 
     final static Logger logger = Logger.getLogger(smbcli.class);
 
-
     private static final CIFSContext baseContextSmb1 = createContext(false);
     private static final CIFSContext baseContextSmb2 = createContext(true);
 
@@ -61,6 +60,7 @@ public class smbcli {
         prop.putAll(System.getProperties());
 
         prop.put("jcifs.smb.client.enableSMB2", String.valueOf(isSmb2));
+        // must remain false to be able to talk to smbV1 only
         prop.put("jcifs.smb.client.disableSMB1", "false");
         prop.put("jcifs.traceResources", "true");
         prop.put("jcifs.resolveOrder", "BCAST,DNS");
