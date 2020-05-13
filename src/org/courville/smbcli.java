@@ -1,19 +1,13 @@
 package org.courville;
 
+import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
-import jcifs.context.BaseContext;
-import jcifs.smb.NtlmPasswordAuthenticator;
 
-import jcifs.CIFSContext;
-import jcifs.CIFSException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbAuthException;
 
 import java.net.MalformedURLException;
 
-import jcifs.config.PropertyConfiguration;
-
-import java.util.Properties;
 import java.io.File;
 
 import org.apache.log4j.Logger;
@@ -23,13 +17,12 @@ public class smbcli {
 
     final static Logger logger = Logger.getLogger(smbcli.class);
 
-    private static final CIFSContext baseContextSmb1 = createContext(false);
-    private static final CIFSContext baseContextSmb2 = createContext(true);
+    private static NtlmPasswordAuthentication auth = null;
 
     static boolean isRootOrWorkgroup(String path) {
         boolean isRootOrWorkgroup = false;
         try {
-            SmbFile smbFile = new SmbFile(path, getBaseContext(false));
+            SmbFile smbFile = new SmbFile(path, auth);
             int type = getType(smbFile);
             // Note: TYPE_WORKGROUP is also returned for the root
             if (type == SmbFile.TYPE_WORKGROUP) {
@@ -54,43 +47,7 @@ public class smbcli {
         }
         return (type);
     }
-
-    private static CIFSContext createContext(boolean isSmb2) {
-        Properties prop = new Properties();
-        prop.putAll(System.getProperties());
-
-        prop.put("jcifs.smb.client.enableSMB2", String.valueOf(isSmb2));
-        // must remain false to be able to talk to smbV1 only
-        prop.put("jcifs.smb.client.disableSMB1", "false");
-        prop.put("jcifs.traceResources", "true");
-        prop.put("jcifs.resolveOrder", "BCAST,DNS");
-
-        // get around https://github.com/AgNO3/jcifs-ng/issues/40
-        prop.put("jcifs.smb.client.ipcSigningEnforced", "false");
-        // allow plaintext password fallback
-        prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
-        // disable dfs makes win10 shares with ms account work
-        prop.put("jcifs.smb.client.dfs.disabled", "true");
-        // this is needed to allow connection to MacOS 10.12.5 and higher according to https://github.com/IdentityAutomation/vfs-jcifs-ng/blob/master/src/test/java/net/idauto/oss/jcifsng/vfs2/provider/SmbProviderTestCase.java
-        // prop.put("jcifs.smb.client.signingEnforced", "true");
-        // makes Guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
-        prop.put("jcifs.smb.client.disableSpnegoIntegrity", "false");
-        // test for Guest on MacOS
-        //prop.put("jcifs.netbios.hostname", "imarc");
-
-        PropertyConfiguration propertyConfiguration = null;
-        try {
-            propertyConfiguration = new PropertyConfiguration(prop);
-        } catch (CIFSException e) {
-            logger.warn("Caught a CIFSException on PropertyConfiguration", e);
-        }
-        return new BaseContext(propertyConfiguration);
-    }
-
-    public static CIFSContext getBaseContext(boolean isSmb2) {
-        return isSmb2 ? baseContextSmb2 : baseContextSmb1;
-    }
-
+    
     public static void main(String[] args) throws Exception {
 
         String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j.properties";
@@ -98,22 +55,18 @@ public class smbcli {
 
         boolean noAuth = false;
         SmbFile smbFile = null;
-        if (args.length == 0 || (args.length > 2 && args.length < 5)) {
-            System.out.println("Proper Usage is: 1|2 smb://server/share/ [domain user password]");
+        if (args.length == 0 || (args.length > 1 && args.length < 4)) {
+            System.out.println("Proper Usage is: smb://server/share/ [domain user password]");
             System.exit(0);
         }
-        if (args.length == 2) noAuth = true;
-        boolean SMB2 = (args[0].equals("2"));
-        if (SMB2) logger.info("Enabling SMB2");
+        if (args.length == 1) noAuth = true;
 
-        CIFSContext baseContext = getBaseContext(SMB2);
-        NtlmPasswordAuthenticator auth = null;
+        auth = null;
         if (noAuth)
-            auth = new NtlmPasswordAuthenticator("", "GUEST", "");
+            auth = new NtlmPasswordAuthentication("", "GUEST", "");
         else
-            auth = new NtlmPasswordAuthenticator(args[2], args[3], args[4]);
-        CIFSContext ctx = baseContext.withCredentials(auth);
-        smbFile = new SmbFile(args[1], ctx);
+            auth = new NtlmPasswordAuthentication(args[1], args[2], args[3]);
+        smbFile = new SmbFile(args[0], auth);
 
         int type;
         try {
