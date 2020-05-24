@@ -73,8 +73,8 @@ public class smbcli {
         prop.put("jcifs.smb.client.dfs.disabled", "true");
         // this is needed to allow connection to MacOS 10.12.5 and higher according to https://github.com/IdentityAutomation/vfs-jcifs-ng/blob/master/src/test/java/net/idauto/oss/jcifsng/vfs2/provider/SmbProviderTestCase.java
         // prop.put("jcifs.smb.client.signingEnforced", "true");
-        // makes Guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
-        prop.put("jcifs.smb.client.disableSpnegoIntegrity", "false");
+        // makes Guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186 --> interferes with WD MyCloud and should not prevent win10 guest
+        // prop.put("jcifs.smb.client.disableSpnegoIntegrity", "false");
         // test for Guest on MacOS
         //prop.put("jcifs.netbios.hostname", "imarc");
 
