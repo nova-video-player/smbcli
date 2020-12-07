@@ -73,34 +73,33 @@ public class smbcli {
                 prop.put("jcifs.smb.client.disableSMB1", "false");
                 prop.put("jcifs.smb.client.enableSMB2", "false");
                 prop.put("jcifs.smb.client.useSMB2Negotiation", "false");
-                // get around https://github.com/AgNO3/jcifs-ng/issues/40
-                prop.put("jcifs.smb.client.ipcSigningEnforced", "false");
                 // see https://github.com/AgNO3/jcifs-ng/issues/226
                 prop.put("jcifs.smb.useRawNTLM", "true");
             }
-            // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
-            // do not change resolveOrder for now
-            prop.put("jcifs.resolveOrder", "BCAST,DNS");
-
-            // allow plaintext password fallback
-            prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
 
             // get around https://github.com/AgNO3/jcifs-ng/issues/40 and this is required for guest login on win10 smb2
             prop.put("jcifs.smb.client.ipcSigningEnforced", "false");
+            // allow plaintext password fallback
+            prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
+
+            // Required to make WD MyCloud work cf. https://github.com/AgNO3/jcifs-ng/issues/225
+            // made guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
+            prop.put("jcifs.smb.client.disableSpnegoIntegrity", "true");
+
         } else { // autodetect smb1/2
             prop.put("jcifs.smb.client.enableSMB2", String.valueOf(isSmb2));
             // must remain false to be able to talk to smbV1 only
             prop.put("jcifs.smb.client.useSMB2Negotiation", "false");
             prop.put("jcifs.smb.client.disableSMB1", "false");
-            // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
-            // do not change resolveOrder for now
-            prop.put("jcifs.resolveOrder", "BCAST,DNS");
-            // get around https://github.com/AgNO3/jcifs-ng/issues/40
+            // get around https://github.com/AgNO3/jcifs-ng/issues/40 and this is required for guest login on win10 smb2
             prop.put("jcifs.smb.client.ipcSigningEnforced", "false");
             // allow plaintext password fallback
             prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
             // disable dfs makes win10 shares with ms account work
             prop.put("jcifs.smb.client.dfs.disabled", "true");
+            // Required to make WD MyCloud work cf. https://github.com/AgNO3/jcifs-ng/issues/225
+            // made guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
+            prop.put("jcifs.smb.client.disableSpnegoIntegrity", "true");
         }
 
         PropertyConfiguration propertyConfiguration = null;
