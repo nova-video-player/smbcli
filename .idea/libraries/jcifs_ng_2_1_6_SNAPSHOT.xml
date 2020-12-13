@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="jcifs-ng-2.1.6-SNAPSHOT">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/jcifs-ng-2.1.6-SNAPSHOT.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

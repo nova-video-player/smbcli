@@ -1,4 +1,4 @@
-package org.courville;
+package org.courville.jcifstest;
 
 import jcifs.smb.SmbFile;
 import jcifs.context.BaseContext;
@@ -22,6 +22,7 @@ import org.apache.log4j.PropertyConfigurator;
 public class smbcli {
 
     final static boolean STRICTPROTOCOLNEGO = true; // lock protocol level to only the one specified
+    private static boolean BCAST_RESOLV = true; // default jcifs resolver BCAST,DNS if true, DNS,BCAST otherwise
 
     final static Logger logger = Logger.getLogger(smbcli.class);
 
@@ -81,11 +82,9 @@ public class smbcli {
             prop.put("jcifs.smb.client.ipcSigningEnforced", "false");
             // allow plaintext password fallback
             prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
-
-            // Required to make WD MyCloud work cf. https://github.com/AgNO3/jcifs-ng/issues/225
-            // made guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
-            prop.put("jcifs.smb.client.disableSpnegoIntegrity", "true");
-
+            // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
+            // BCAST,DNS order makes WD devices happy but results in wrong IP decision for some https://github.com/AgNO3/jcifs-ng/issues/258
+            if (BCAST_RESOLV) prop.put("jcifs.resolveOrder", "BCAST,DNS");
         } else { // autodetect smb1/2
             prop.put("jcifs.smb.client.enableSMB2", String.valueOf(isSmb2));
             // must remain false to be able to talk to smbV1 only
@@ -97,9 +96,9 @@ public class smbcli {
             prop.put("jcifs.smb.client.disablePlainTextPasswords", "false");
             // disable dfs makes win10 shares with ms account work
             prop.put("jcifs.smb.client.dfs.disabled", "true");
-            // Required to make WD MyCloud work cf. https://github.com/AgNO3/jcifs-ng/issues/225
-            // made guest work on Win10 https://github.com/AgNO3/jcifs-ng/issues/186
-            prop.put("jcifs.smb.client.disableSpnegoIntegrity", "true");
+            // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
+            // BCAST,DNS order makes WD devices happy but results in wrong IP decision for some https://github.com/AgNO3/jcifs-ng/issues/258
+            if (BCAST_RESOLV) prop.put("jcifs.resolveOrder", "BCAST,DNS");
         }
 
         PropertyConfiguration propertyConfiguration = null;
@@ -119,26 +118,31 @@ public class smbcli {
 
         String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j.properties";
         PropertyConfigurator.configure(log4jConfigFile);
+        //PropertyConfigurator.configure("log4j.properties");
 
         boolean noAuth = false;
         SmbFile smbFile = null;
-        if (args.length == 0 || (args.length > 2 && args.length < 5)) {
-            System.out.println("Proper Usage is: 1|2 smb://server/share/ [domain user password]");
+        if (args.length == 0 || (args.length > 2 && args.length < 6)) {
+            System.out.println("Proper Usage is: 1|2 BCAST|DNS smb://server/share/ [domain user password]");
             System.exit(0);
         }
-        if (args.length == 2) noAuth = true;
+        if (args.length == 3) noAuth = true;
+
         boolean SMB2 = (args[0].equals("2"));
         if (SMB2) logger.info("Enabling SMB2");
+        BCAST_RESOLV = (args[1].equals("BCAST"));
+        if (BCAST_RESOLV) logger.info("Enabling BCAST resolver first (not DNS)");
+        else logger.info("Enabling DNS resolver first (not BCAST)");
 
         CIFSContext baseContext = getBaseContext(SMB2);
-        CIFSContext ctx = null;
+        CIFSContext ctx;
         if (noAuth)
             ctx = baseContext.withGuestCrendentials();
         else {
-            NtlmPasswordAuthenticator auth = new NtlmPasswordAuthenticator(args[2], args[3], args[4]);
+            NtlmPasswordAuthenticator auth = new NtlmPasswordAuthenticator(args[3], args[4], args[5]);
             ctx = baseContext.withCredentials(auth);
         }
-        smbFile = new SmbFile(args[1], ctx);
+        smbFile = new SmbFile(args[2], ctx);
 
         int type;
         try {

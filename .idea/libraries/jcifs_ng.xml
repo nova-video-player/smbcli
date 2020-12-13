@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="slf4j-api-1.7.25">
+  <library name="jcifs-ng">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/libs/slf4j-api-1.7.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/jcifs-ng.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

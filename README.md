@@ -5,17 +5,17 @@ It only does a file listing of a SMB network share directory.
 ## Compilation
 Project can be run directly via IntelliJ IDE but one can compile it via these commands if you prefer CLI:
 ```
-javac -classpath ./libs/jcifs-ng-2.1.5-SNAPSHOT.jar:./libs/log4j-1.2.17.jar:./libs/bcprov-jdk15on-1.61.jar:./libs/slf4j-api-1.7.25.jar:./libs/slf4j-log4j12-1.7.25.jar src/org/courville/smbcli.java
-cp src/org/courville/smbcli.class out/production/smbcli/
+rm -rt target
+mvn package -DskipTests -Dmaven.javadoc.skip=true
 ```
 Run with:
 ```
-java -cp ./out/production/smbcli:./libs/jcifs-ng-2.1.5-SNAPSHOT.jar:./libs/log4j-1.2.17.jar:./libs/bcprov-jdk15on-1.61.jar:./libs/slf4j-api-1.7.25.jar:./libs/slf4j-log4j12-1.7.25.jar smbcli 2 smb://server/share/ domain user password
+java -jar target/jcifstest-1.0-SNAPSHOT.jar 2 BCAST smb://ds720p/ "" user password
 ```
 Guest login is with "" GUEST "" as domain user password.
 
 ## Usage
-`smbcli 1|2 smb://server/share/ [domain user password]`
+`smbcli 1|2 BCAST|DNS smb://server/share/ [domain user password]`
 For guest login use `"" GUEST ""` as domain user password.
 
 
