@@ -8,16 +8,10 @@ Project can be run directly via IntelliJ IDE but one can compile it via these co
 rm -rt target
 mvn package -DskipTests -Dmaven.javadoc.skip=true
 ```
-Run with:
-```
-java -jar target/jcifstest-1.0-SNAPSHOT.jar 2 BCAST smb://ds720p/ "" user password
-```
-Guest login is with "" GUEST "" as domain user password.
-
 ## Usage
-`smbcli 1|2 BCAST|DNS smb://server/share/ [domain user password]`
-For guest login use `"" GUEST ""` as domain user password.
+`java -jar jcifstest-1.0-SNAPSHOT.jar 1|2 BCAST|DNS smb://server/share/ [domain user password]`
 
+For guest login (unprotected shares) just omit `"" user password` as domain user password.
 
 ## Logs
 To get trace logs for jcifs-ng use the following `log4j.properties` file in the root directory where smbcli is run. Sample file is provided in the project.
