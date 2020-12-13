@@ -85,6 +85,7 @@ public class smbcli {
             // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
             // BCAST,DNS order makes WD devices happy but results in wrong IP decision for some https://github.com/AgNO3/jcifs-ng/issues/258
             if (BCAST_RESOLV) prop.put("jcifs.resolveOrder", "BCAST,DNS");
+            else prop.put("jcifs.resolveOrder", "DNS,BCAST");
         } else { // autodetect smb1/2
             prop.put("jcifs.smb.client.enableSMB2", String.valueOf(isSmb2));
             // must remain false to be able to talk to smbV1 only
@@ -99,6 +100,7 @@ public class smbcli {
             // resolve in this order to avoid netbios name being also a foreign DNS entry resulting in bad resolution
             // BCAST,DNS order makes WD devices happy but results in wrong IP decision for some https://github.com/AgNO3/jcifs-ng/issues/258
             if (BCAST_RESOLV) prop.put("jcifs.resolveOrder", "BCAST,DNS");
+            else prop.put("jcifs.resolveOrder", "DNS,BCAST");
         }
 
         PropertyConfiguration propertyConfiguration = null;
