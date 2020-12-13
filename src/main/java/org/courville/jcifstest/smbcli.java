@@ -122,7 +122,8 @@ public class smbcli {
 
         boolean noAuth = false;
         SmbFile smbFile = null;
-        if (args.length == 0 || (args.length > 2 && args.length < 6)) {
+        System.out.println("args length " + args.length);
+        if (args.length == 0) {
             System.out.println("Proper Usage is: 1|2 BCAST|DNS smb://server/share/ [domain user password]");
             System.exit(0);
         }
