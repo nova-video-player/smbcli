@@ -14,17 +14,16 @@ import java.net.MalformedURLException;
 import jcifs.config.PropertyConfiguration;
 
 import java.util.Properties;
-import java.io.File;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class smbcli {
 
     final static boolean STRICTPROTOCOLNEGO = true; // lock protocol level to only the one specified
     private static boolean BCAST_RESOLV = true; // default jcifs resolver BCAST,DNS if true, DNS,BCAST otherwise
 
-    final static Logger logger = Logger.getLogger(smbcli.class);
+    private static final Logger logger = LoggerFactory.getLogger(smbcli.class);
 
     private static final CIFSContext baseContextSmb1 = createContext(false);
     private static final CIFSContext baseContextSmb2 = createContext(true);
@@ -117,11 +116,6 @@ public class smbcli {
     }
 
     public static void main(String[] args) throws Exception {
-
-        String log4jConfigFile = System.getProperty("user.dir") + File.separator + "log4j.properties";
-        PropertyConfigurator.configure(log4jConfigFile);
-        //PropertyConfigurator.configure("log4j.properties");
-
         boolean noAuth = false;
         SmbFile smbFile = null;
         System.out.println("args length " + args.length);
