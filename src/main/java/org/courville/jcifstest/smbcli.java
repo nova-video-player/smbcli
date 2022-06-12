@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class smbcli {
 
-    final static boolean STRICTPROTOCOLNEGO = true; // lock protocol level to only the one specified
+    final static boolean STRICTPROTOCOLNEGO = false; // lock protocol level to only the one specified
     private static boolean BCAST_RESOLV = true; // default jcifs resolver BCAST,DNS if true, DNS,BCAST otherwise
 
     private static final Logger logger = LoggerFactory.getLogger(smbcli.class);
